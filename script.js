@@ -1,24 +1,25 @@
 (() => {
-    const statusDisplay = document.querySelector('.game--status');
-
+    const cells = document.querySelectorAll('.cell')
+    const statusDisplay = document.querySelector(".game--status")
+    let gameState = ["", "", "", "", "", "", "", "", ""];
     let gameActive = true;
     let currentPlayer = "X";
-    let gameState = ["", "", "", "", "", "", "", "", ""];
 
     const winningMessage = () => `Player ${currentPlayer} has won!`;
     const drawMessage = () => `Game ended in a draw!`;
     const currentPlayerTurn = () => `It's ${currentPlayer}'s turn`;
 
-    statusDisplay.innerHTML = currentPlayerTurn();
-
-    function handleCellPlayed(clickedCell, clickedCellIndex) {
-        gameState[clickedCellIndex] = currentPlayer;
-        clickedCell.innerHTML = currentPlayer
-    }
+    statusDisplay.innerHTML = currentPlayerTurn()
 
     function handlePlayerChange() {
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        statusDisplay.innerHTML = currentPlayerTurn();
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusDisplay.innerHTML = currentPlayerTurn()
+    }
+
+    function handleCellPlayed(clickedCell, clickedCellIndex) {
+        clickedCell.innerHTML = currentPlayer;
+        gameState[clickedCellIndex] = currentPlayer;
+
     }
 
     const winningConditions = [
@@ -36,17 +37,20 @@
         let roundWon = false;
         for (let i = 0; i <= 7; i++) {
             const winCondition = winningConditions[i];
-            
+
             let a = gameState[winCondition[0]]
             let b = gameState[winCondition[1]]
             let c = gameState[winCondition[2]]
 
-            if (a === "" || b === "" || c === ""){
-                continue;
+            if (a === "" || b === "" || c === "") {
+                continue
             }
 
             if (a === b && b === c) {
                 roundWon = true;
+                cells[winCondition[0]].classList.add('red-color')
+                cells[winCondition[1]].classList.add('red-color')
+                cells[winCondition[2]].classList.add('red-color')
                 break;
             }
         }
@@ -57,40 +61,38 @@
             return;
         }
 
-        let roundDraw = !gameState.includes("");
+        let roundDraw = !gameState.includes("")
         if (roundDraw) {
             statusDisplay.innerHTML = drawMessage();
             gameActive = false;
             return;
         }
 
-        handlePlayerChange()
+        handlePlayerChange();
     }
 
     function handleCellClick(e) {
         const clickedCell = e.target;
         const clickedCellIndex = parseInt(clickedCell.dataset.cellIndex) - 1;
-
-        if (gameState[clickedCellIndex] !== "" && !gameActive) {
-            return;
+        
+        if (gameState[clickedCellIndex] === "" && gameActive) {
+            handleCellPlayed(clickedCell, clickedCellIndex);
+            handleResultValidation()
         }
-
-        handleCellPlayed(clickedCell, clickedCellIndex);
-        handleResultValidation();
     }
 
     function handleRestartGame() {
         gameActive = true;
-        currentPlayer = "X";
         gameState = ["", "", "", "", "", "", "", "", ""];
-        statusDisplay.innerHTML = currentPlayerTurn();
-        document.querySelectorAll('.cell')
-               .forEach(cell => cell.innerHTML = "");
+        cells.forEach(cell => {
+            cell.innerHTML = ""
+            cell.classList.remove('red-color')
+        })
+        currentPlayer = "X";
+        statusDisplay.innerHTML = currentPlayerTurn()
     }
 
-    document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
+    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
     document.querySelector('.game--restart').addEventListener('click', handleRestartGame);
 
-
-
-})();
+})()
